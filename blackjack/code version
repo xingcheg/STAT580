@@ -1,0 +1,13 @@
+blackjack.c   written by Raymond Wong.
+Rules:
+  1. Dealer has to take hits until his/her cards total 17 or more points.
+  2. Player has two options: hit, stand.
+  3. Ace is always counted as 1 point.
+  
+
+blackjack1.c   Changed by me.
+Added Rules:
+  1. Ace is counted as 1 or 11 point. (Always counted as the optimal points.)
+  
+  
+To be continued....
