@@ -66,6 +66,8 @@ int main(int argc, char *argv[]){
 	K = n;
 	N_Y = 1;
 
+	printf("Sample size and the number of predictors are %d and %d respectively.\n",n,p);
+
 if (atoi(argv[2]) == 1){   /*solve the normal equation(with intercept):X'Xb=X'y  */
       N_X = p+1;
       XX = (double*) malloc(sizeof(double) * (p+1)*(p+1));
