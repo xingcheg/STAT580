@@ -38,15 +38,19 @@ int main(int argc, char *argv[]){
 		printf("Error opening file.\n");
 		return (1);
 	}
-
-      c = fgetc(f);                       
-	  while (c != EOF){
+                   
+	  while ( (c=fgetc(f)) != EOF){
 		  if (c == ' ') p++;
-		  if (c == '\n') n++;
-		  c = fgetc(f);
+		  if (c == '\n') break;
 	  }
 
-	  p = p/n;     /*line 42-49 used to calculate ncol & nrow: ncol = p; nrow = n. */
+	  rewind(f);
+
+	  while ( (c=fgetc(f)) != EOF){
+		  if (c == ' ') n++;
+	  }
+
+	  n = n/p;     /*line 42-53 used to calculate ncol & nrow: ncol = p; nrow = n. */
       Y = (double*) malloc(sizeof(double) * n);
 	  assert(Y != NULL);
 	  X = (double*) malloc(sizeof(double) * (n*(p+1)) );
