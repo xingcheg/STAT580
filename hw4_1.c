@@ -60,11 +60,10 @@ int main(int argc, char *argv[]){
 
 	  for (i=0; i<n; i++){
 		  X[i] = 1;
-		  fscanf(f, "%lf ", &(Y[i]) );
-		  for (j=1; j<p; j++){
-			  fscanf(f, "%lf ", &(X[j*n+i]) );
+		  fscanf(f, "%lf", &(Y[i]) );
+		  for (j=1; j<(p+1); j++){
+			  fscanf(f, "%lf", &(X[j*n+i]) );
 		  }
-		  fscanf(f, "%lf\n", &(X[p*n+i]) );
 	  }           /*assign the first column of the data to Y; assign the rest of the columns to X.*/
 
 	K = n;
