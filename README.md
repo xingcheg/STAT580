@@ -11,7 +11,7 @@ I will post the presentation materials after the presentations.
 
 ## Final Project
 
->Topic: Matrix complement using SVD.
+>Topic: Matrix complement using SVD(Soft-Impute).
 
 >Applications: 
 
