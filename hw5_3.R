@@ -1,6 +1,6 @@
 library(Rcpp)
 
-cppFunction('NumericMatrix Gibbs(NumericVector X, int a, int b, int N, double p, double l) {
+cppFunction('NumericMatrix Gibbs(NumericVector X, double a, double b, int N, double p, double l) {
 
 NumericMatrix mat(N,2);
 int n, m = X.size();
@@ -15,8 +15,9 @@ mat(0,1) = p;
 label = (X==0);
 n = sum(label);
 
+GetRNGstate();
 for (i = 1; i < N; i++){
-  r = rep(1,100);
+  r = rep(1,m);
   p0 = (p*exp(-l))/(p*exp(-l)+1-p);
 
   for (j = 0; j < m; j++){
@@ -27,18 +28,19 @@ for (i = 1; i < N; i++){
   }
 
   sum_r = sum(r);
-  l = rgamma(1, a+sum_x,  1/((double) (b+sum_r)) )[0];
+  l = rgamma(1, a+sum_x,  1/(b+sum_r) )[0];
   mat(i,0) = l;
   p = rbeta(1, 1+sum_r, m+1-sum_r)[0];
   mat(i,1) = p;
 }
+PutRNGstate();
 
 return(mat);
 
 }')
 
 
-rGibbs <- function(X,a,b,p,l,N,M,d){
+rcppGibbs <- function(X,a,b,p,l,N,M,d){
   Rout <- Gibbs(X,a,b,N,p,l)
   Rout1 <- Rout[-(1:M),]
   Rout2 <- Rout1[(1:(N-M)) %% d == 0 , ]
@@ -63,7 +65,7 @@ N <- 100000
 M = 30000
 d = 10
 
-rGibbs(X,a,b,p,l,N,M,d)
+rcppGibbs(X,a,b,p,l,N,M,d)
 
 
 

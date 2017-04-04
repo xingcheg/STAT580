@@ -5,15 +5,15 @@
 
 SEXP RCGibbs(SEXP X, SEXP a_, SEXP b_, SEXP N_, SEXP p_, SEXP l_){
 
-int a,b,N;
+double a,b;
 double p,l;
-int n, m = length(X);
+int N, n, m = length(X);
 int r[m], label[m];
 int sum_x, sum_r, i,j,k;
 double p0, u;
 
-a = asInteger(a_);
-b = asInteger(b_);
+a = asReal(a_);
+b = asReal(b_);
 N = asInteger(N_);
 p = REAL(p_)[0];
 l = REAL(l_)[0];
@@ -69,7 +69,7 @@ r[j] = 1;
                      for (j=0; j<m; j++){
                        sum_r = sum_r + r[j];
                      }
-                     l = rgamma(a+sum_x,  1/((double) (b+sum_r)) );
+                     l = rgamma(a+sum_x,  1/ (b+sum_r) );
                      REAL(Lambda)[i] = l;
                      p = rbeta(1+sum_r, m+1-sum_r);
                      REAL(P)[i] = p;
