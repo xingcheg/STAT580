@@ -1,0 +1,132 @@
+---
+title: "BLB Code"
+author: "Xingche Guo"
+date: "4/6/2017"
+output: pdf_document
+---
+
+##Bootstrap
+## Nonparametric bootstrap
+```{r}
+library(boot)
+x <- rnorm(100)
+samplemean <- function(x, d) {
+  return(mean(x[d]))
+}
+b <- boot(x, samplemean, R=10000)
+b
+ci <- boot.ci(b, conf = 0.95, type = c("norm", "basic", "perc"))
+ci
+```
+
+```{r, echo = FALSE}
+library(ggplot2)
+D <- data.frame(mean = b$t - mean(x))
+ggplot(data = D) + 
+  geom_histogram(aes(x = mean, ..density..), bins = 100, fill = "blue", alpha = 0.3)+
+  stat_function(fun = dnorm, colour = "red", args =  list( 0, 0.1 ) )
+  
+```
+
+## Compare Nonparametric bootstrap & Parametric bootstrap
+```{r}
+head(cd4)
+
+
+samplecor <- function(x,d){
+  x1 <- x[d,1]
+  x2 <- x[d,2]
+  return(cor(x1,x2))
+}
+cd4.boot.nop <- boot(data = cd4, statistic = samplecor, R = 1000)
+boot.ci(cd4.boot.nop,  type = c("norm", "basic", "perc"),
+        conf = 0.9, h = atanh, hinv = tanh)
+
+
+
+cd4.mle <- list(m = colMeans(cd4), v = var(cd4))
+cd4.rg <- function(data, mle) MASS::mvrnorm(nrow(data), mle$m, mle$v)
+cd4.boot <- boot(cd4, corr, R = 1000, sim = "parametric",
+                 ran.gen = cd4.rg, mle = cd4.mle)
+boot.ci(cd4.boot,  type = c("norm", "basic", "perc"),
+        conf = 0.9, h = atanh, hinv = tanh)
+```
+
+## Compare bootstrap with and without parallel computing
+```{r, echo = FALSE}
+no_para <- function(...){
+library(boot)
+cd4.mle <- list(m = colMeans(cd4), v = var(cd4))
+cd4.rg <- function(data, mle) MASS::mvrnorm(nrow(data), mle$m, mle$v)
+
+cd4.boot <- boot(cd4, corr, R = 100000, sim = "parametric",
+                 ran.gen = cd4.rg, mle = cd4.mle)
+boot.ci(cd4.boot,  type = c("norm", "basic", "perc"),
+        conf = 0.9, h = atanh, hinv = tanh)
+}
+```
+
+
+```{r}
+para<-function(...){
+  library(doParallel)
+  cl <- makeCluster( detectCores() - 1  )
+  registerDoParallel(cl)
+  cd4.mle <- list(m = colMeans(boot::cd4), v = var(boot::cd4)) 
+  cd4.rg <- function(data, mle) MASS::mvrnorm(nrow(data), mle$m, mle$v)
+  
+  cd4.boot <- foreach(i=1:500, .combine = c) %dopar% {
+  boot::boot(boot::cd4, boot::corr, R = 200, sim = "parametric", 
+         ran.gen = cd4.rg, mle = cd4.mle)
+  }
+  stopCluster(cl)
+  boot::boot.ci(cd4.boot, type = c("norm", "basic", "perc"),conf = 0.9, h = atanh, hinv = tanh)
+}
+```
+
+```{r, cache = TRUE}
+set.seed(580580)
+system.time(para())
+system.time(no_para())
+```
+
+
+## Compare BLB & bootstrap
+```{r, cache = TRUE}
+library(datadr)
+head(adult)
+###BLB --- drBLB
+rrAdult <- divide(adult, by = rrDiv(1000), update = TRUE)
+BLB <- function(x) {
+  drBLB(x,
+        statistic = function(x, weights)
+          coef(glm(incomebin ~ educationnum,
+                   data = x, weights = weights, family = binomial()))[2],
+        metric = function(x)
+          quantile(x, c(0.05, 0.95)),
+        R = 100,
+        n = nrow(rrAdult)
+  )
+}
+adultBlb <- addTransform(rrAdult, BLB)
+coefs <- recombine(adultBlb, combMean)
+coefs
+
+
+### compared with bootstrap
+library(boot)
+coef_adult <- function(x,d){
+  coef(glm(incomebin ~ educationnum,
+           data = x[d,], family = binomial()))[2]
+}
+
+BOOT <- boot(adult, coef_adult, 100)
+CI <- boot.ci(BOOT, conf = 0.90, type = "basic")
+CI
+```
+
+
+
+
+
+
