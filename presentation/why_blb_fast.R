@@ -1,5 +1,5 @@
 n <- 100000
-b <- 500
+b <- 100
 N <- rnorm(n)
 B <- sample(N,b)
 
@@ -10,7 +10,7 @@ return(mean(X))
 
 mean2 <- function(B,n,b){
   X <- as.numeric( rmultinom(1,n,rep(1/b,b)) )
-  return(mean(X*B)/b)
+  return(sum(X*B)/n)
 }
 
 mean1(B,n)
