@@ -109,48 +109,6 @@ SoftImpute.APG.np <- function(Z, Lambda, r = min(ncol(Z),nrow(Z)), e = 0.001,
 
 
 
-lena <- scan( "C:\\Users\\thinkpad\\Dropbox\\STAT 580\\FinalProject\\Rcode\\lena256")
-lena <- lena[-c(1,2)]
-lena <- matrix(data = lena, nrow = 256)
-lena <- lena[,256:1]
-
-image(z=lena, col=gray(1:256/256), axes=FALSE)
-
-
-N <- length(lena)
-set.seed(580580)
-flag <- sample(1:N)
-n.miss <- round(N * 0.4)
-n.valid <- round(N * 0)
-n.train <- N - (n.miss + n.valid)
-f.miss <- flag[1:n.miss]
-f.valid <- flag[n.miss+1:n.valid]
-f.train <- flag[(N-n.train+1): N]
-tr.M <- lena
-tr.M[c(f.miss, f.valid)] <- NA 
-image(z=tr.M, col=gray(1:256/256), axes=FALSE)
-out.APG <- SoftImpute.APG.np(tr.M, Lambda = 7:5, svd.method = 4)
-image(z=out[[3]], col=gray(1:256/256), axes=FALSE)
-
-
-
-
-#########################################################
-# Compare the speed using lena
-
-
-
-library(microbenchmark)
-
-microbenchmark(out.APG <- SoftImpute.APG.np(tr.M, Lambda = seq(200,100,-10), svd.method = 4),
-               out <- SoftImpute.np(tr.M, Lambda = seq(200,100,-10), svd.method = 4)
-               )
-
-
-library(Matrix)
-rankMatrix(lena)
-
-
 
 
 
